@@ -32,7 +32,10 @@ public class HttpRouteRegisterTest {
                 .post("/bb", clazz_2, "bb")
                 .get("/cc", clazz_2, "cc")
                 .delete("/dd", clazz_2, "dd")
-                .endBasePath();
+                .endBasePath()
+
+                .get("/gg", clazz_1, "gg")
+        ;
         register.printAllRouteInfo();
     }
 }
