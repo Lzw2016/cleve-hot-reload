@@ -4,10 +4,12 @@ import groovy.util.GroovyScriptEngine;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.clever.hot.reload.utils.ReflectionsUtils;
 import org.springframework.util.Assert;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -74,25 +76,57 @@ public class HotReloadEngine {
         return clazz;
     }
 
-    public List<Method> getMethods(String classFullName, String method) {
+    public List<Method> getMethods(String classFullName, String methodName) {
         Assert.hasText(classFullName, "参数classFullName不能为空");
-        Assert.hasText(method, "参数method不能为空");
+        Assert.hasText(methodName, "参数method不能为空");
         Class<?> clazz = loadClass(classFullName);
         Method[] methods = clazz.getDeclaredMethods();
-        return Arrays.stream(methods).filter(m -> Objects.equals(method, m.getName())).collect(Collectors.toList());
+        return Arrays.stream(methods).filter(m -> Objects.equals(methodName, m.getName())).collect(Collectors.toList());
     }
 
-    public Method getMethod(String classFullName, String method) {
-        Assert.hasText(classFullName, "参数classFullName不能为空");
-        Assert.hasText(method, "参数method不能为空");
-        Method res = null;
-        List<Method> methods = getMethods(classFullName, method);
+    public Method getMethod(String classFullName, String methodName) {
+        Method method = null;
+        List<Method> methods = getMethods(classFullName, methodName);
         if (!methods.isEmpty()) {
-            res = methods.get(0);
+            method = methods.get(0);
         }
         if (methods.size() > 1) {
-            log.warn("class={} 包含{}个 method={}", classFullName, methods.size(), method);
+            log.warn("class={} 包含{}个 method={}", classFullName, methods.size(), methodName);
         }
-        return res;
+        return method;
+    }
+
+    @SneakyThrows
+    public Object invokeMethod(String classFullName, String methodName, Object... args) {
+        Method method = getMethod(classFullName, methodName);
+        if (method == null) {
+            throw new IllegalArgumentException(String.format("class=%s中不存在static method=%s", classFullName, methodName));
+        }
+        ReflectionsUtils.makeAccessible(method);
+        return method.invoke(null, args);
+    }
+
+    public Method getStaticMethod(String classFullName, String methodName) {
+        List<Method> methods = getMethods(classFullName, methodName).stream()
+                .filter(m -> Modifier.isStatic(m.getModifiers()))
+                .collect(Collectors.toList());
+        Method method = null;
+        if (!methods.isEmpty()) {
+            method = methods.get(0);
+        }
+        if (methods.size() > 1) {
+            log.warn("class={} 包含{}个 method={}", classFullName, methods.size(), methodName);
+        }
+        return method;
+    }
+
+    @SneakyThrows
+    public Object invokeStaticMethod(String classFullName, String methodName, Object... args) {
+        Method method = getStaticMethod(classFullName, methodName);
+        if (method == null) {
+            throw new IllegalArgumentException(String.format("class=%s中不存在static method=%s", classFullName, methodName));
+        }
+        ReflectionsUtils.makeAccessible(method);
+        return method.invoke(null, args);
     }
 }

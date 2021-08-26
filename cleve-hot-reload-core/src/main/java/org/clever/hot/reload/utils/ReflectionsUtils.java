@@ -52,7 +52,7 @@ public class ReflectionsUtils {
      *
      * @param method 目标方法实例
      */
-    private static void makeAccessible(Method method) {
+    public static void makeAccessible(Method method) {
         if ((!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
             method.setAccessible(true);
         }
@@ -63,7 +63,7 @@ public class ReflectionsUtils {
      *
      * @param field 成员变量实例
      */
-    private static void makeAccessible(Field field) {
+    public static void makeAccessible(Field field) {
         if ((!Modifier.isPublic(field.getModifiers())
                 || !Modifier.isPublic(field.getDeclaringClass().getModifiers())
                 || Modifier.isFinal(field.getModifiers()))
@@ -82,7 +82,7 @@ public class ReflectionsUtils {
      * @param parameterTypes 方法签名参数类型
      * @return 方法实例，获取失败返回null
      */
-    private static Method getAccessibleMethod(final Object obj, final String methodName, final Class<?>... parameterTypes) {
+    public static Method getAccessibleMethod(final Object obj, final String methodName, final Class<?>... parameterTypes) {
         Class<?> searchType = obj.getClass();
         Throwable throwable = null;
         while (searchType != Object.class) {
@@ -116,7 +116,7 @@ public class ReflectionsUtils {
      * @param methodName 方法名称
      * @return 方法实例，获取失败返回null
      */
-    private static Method getAccessibleMethodByName(final Object obj, final String methodName) {
+    public static Method getAccessibleMethodByName(final Object obj, final String methodName) {
         Class<?> searchType = obj.getClass();
         while (searchType != Object.class) {
             Method[] methods = searchType.getDeclaredMethods();
@@ -140,7 +140,7 @@ public class ReflectionsUtils {
      * @param fieldName 成员变量名称
      * @return 成员变量实例
      */
-    private static Field getAccessibleField(final Object obj, final String fieldName) {
+    public static Field getAccessibleField(final Object obj, final String fieldName) {
         Class<?> superClass = obj.getClass();
         Throwable throwable = null;
         while (superClass != Object.class) {
