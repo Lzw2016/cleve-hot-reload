@@ -7,24 +7,25 @@
     <parent>
         <groupId>org.clever</groupId>
         <artifactId>cleve-hot-reload</artifactId>
-        <version>${revision}</version>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>cleve-hot-reload-core</artifactId>
+    <artifactId>cleve-hot-reload-spring</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
     </dependencies>
 </project>
