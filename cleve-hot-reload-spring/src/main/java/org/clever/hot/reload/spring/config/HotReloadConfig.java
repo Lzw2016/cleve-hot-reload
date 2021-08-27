@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,5 +31,5 @@ public class HotReloadConfig implements Serializable {
     /**
      * http路由模块(org.clever.hot.reload.route.HttpRoute实现类class全路径)
      */
-    private List<String> httpRouteModules;
+    private List<String> httpRouteModules = new ArrayList<>();
 }

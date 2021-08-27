@@ -3,7 +3,7 @@ package org.clever.hot.reload;
 import groovy.util.GroovyScriptEngine;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.clever.hot.reload.utils.FilePathUtils;
 import org.clever.hot.reload.utils.ReflectionsUtils;
 import org.springframework.util.Assert;
 
@@ -22,10 +22,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class HotReloadEngine {
-    private static final String DOT = ".";
-    private static final String GROOVY_SUFFIX = ".groovy";
-    private static final String JAVA_SUFFIX = ".java";
-
     private final GroovyScriptEngine engine;
 
     @SneakyThrows
@@ -58,20 +54,7 @@ public class HotReloadEngine {
     public Class<?> loadClass(String classFullName) {
         Assert.hasText(classFullName, "参数classFullName不能为空");
         Class<?> clazz;
-        String classPath;
-        if (StringUtils.endsWithIgnoreCase(classFullName, GROOVY_SUFFIX)) {
-            int index = classFullName.length() - GROOVY_SUFFIX.length();
-            String path = StringUtils.substring(classFullName, 0, index);
-            String suffix = StringUtils.substring(classFullName, index);
-            classPath = StringUtils.replace(path, DOT, File.separator) + suffix;
-        } else if (StringUtils.endsWithIgnoreCase(classFullName, JAVA_SUFFIX)) {
-            int index = classFullName.length() - JAVA_SUFFIX.length();
-            String path = StringUtils.substring(classFullName, 0, index);
-            String suffix = StringUtils.substring(classFullName, index);
-            classPath = StringUtils.replace(path, DOT, File.separator) + suffix;
-        } else {
-            classPath = StringUtils.replace(classFullName, DOT, File.separator) + GROOVY_SUFFIX;
-        }
+        String classPath = FilePathUtils.getClassPath(classFullName);
         clazz = engine.loadScriptByName(classPath);
         return clazz;
     }

@@ -39,13 +39,17 @@ public class HotReloadAutoconfigure {
     @Bean("hotReloadInterceptorHandler")
     public HotReloadInterceptorHandler hotReloadInterceptorHandler(SpringContextHolder springContextHolder) {
         log.warn("当前已使用代码热重载模式，请勿在生产环境使用这种模式");
-        return new HotReloadInterceptorHandler(springContextHolder, hotReloadConfig);
+        HotReloadInterceptorHandler interceptorHandler = new HotReloadInterceptorHandler(springContextHolder, hotReloadConfig);
+        interceptorHandler.initHttpRoutes();
+        return interceptorHandler;
     }
 
     @ConditionalOnProperty(prefix = HotReloadConfig.CONFIG_ROOT, name = "dev-mode", havingValue = "false")
     @Primary
     @Bean("productionInterceptorHandler")
     public ProductionInterceptorHandler productionInterceptorHandler(SpringContextHolder springContextHolder) {
-        return new ProductionInterceptorHandler(springContextHolder, hotReloadConfig);
+        ProductionInterceptorHandler interceptorHandler = new ProductionInterceptorHandler(springContextHolder, hotReloadConfig);
+        interceptorHandler.initHttpRoutes();
+        return interceptorHandler;
     }
 }
