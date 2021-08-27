@@ -1,12 +1,13 @@
 package org.clever.hot.reload.spring.autoconfigure;
 
 import lombok.extern.slf4j.Slf4j;
+import org.clever.hot.reload.spring.component.SpringContextHolder;
 import org.clever.hot.reload.spring.config.HotReloadConfig;
 import org.clever.hot.reload.spring.intercept.HotReloadInterceptorHandler;
 import org.clever.hot.reload.spring.intercept.ProductionInterceptorHandler;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,16 +29,23 @@ public class HotReloadAutoconfigure {
         this.hotReloadConfig = hotReloadConfig;
     }
 
-    @ConditionalOnClass(name = "groovy.util.GroovyScriptEngine")
-    @Bean("hotReloadInterceptorHandler")
-    public HotReloadInterceptorHandler hotReloadInterceptorHandler() {
-        return null;
+    @ConditionalOnMissingBean
+    @Bean("hotReloadSpringContextHolder")
+    public SpringContextHolder hotReloadSpringContextHolder() {
+        return new SpringContextHolder();
     }
 
-    @ConditionalOnMissingClass("groovy.util.GroovyScriptEngine")
+    @ConditionalOnProperty(prefix = HotReloadConfig.CONFIG_ROOT, name = "dev-mode", havingValue = "true", matchIfMissing = true)
+    @Bean("hotReloadInterceptorHandler")
+    public HotReloadInterceptorHandler hotReloadInterceptorHandler(SpringContextHolder springContextHolder) {
+        log.warn("当前已使用代码热重载模式，请勿在生产环境使用这种模式");
+        return new HotReloadInterceptorHandler(springContextHolder, hotReloadConfig);
+    }
+
+    @ConditionalOnProperty(prefix = HotReloadConfig.CONFIG_ROOT, name = "dev-mode", havingValue = "false")
     @Primary
     @Bean("productionInterceptorHandler")
-    public ProductionInterceptorHandler productionInterceptorHandler() {
-        return null;
+    public ProductionInterceptorHandler productionInterceptorHandler(SpringContextHolder springContextHolder) {
+        return new ProductionInterceptorHandler(springContextHolder, hotReloadConfig);
     }
 }

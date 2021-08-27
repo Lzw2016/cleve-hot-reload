@@ -1,7 +1,8 @@
 package org.clever.hot.reload.spring.intercept;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
+import org.clever.hot.reload.spring.component.SpringContextHolder;
+import org.clever.hot.reload.spring.config.HotReloadConfig;
 
 /**
  * 作者：lizw <br/>
@@ -9,7 +10,12 @@ import org.springframework.context.ApplicationContext;
  */
 @Slf4j
 public class ProductionInterceptorHandler extends AbstractInterceptorHandler {
-    public ProductionInterceptorHandler(ApplicationContext applicationContext) {
-        super(applicationContext);
+    public ProductionInterceptorHandler(SpringContextHolder springContextHolder, HotReloadConfig hotReloadConfig) {
+        super(springContextHolder, hotReloadConfig);
+    }
+
+    @Override
+    public void initHttpRoutes() {
+
     }
 }

@@ -2,7 +2,8 @@ package org.clever.hot.reload.spring.intercept;
 
 import lombok.extern.slf4j.Slf4j;
 import org.clever.hot.reload.HotReloadEngine;
-import org.springframework.context.ApplicationContext;
+import org.clever.hot.reload.spring.component.SpringContextHolder;
+import org.clever.hot.reload.spring.config.HotReloadConfig;
 
 /**
  * 作者：lizw <br/>
@@ -12,8 +13,12 @@ import org.springframework.context.ApplicationContext;
 public class HotReloadInterceptorHandler extends AbstractInterceptorHandler {
     private final HotReloadEngine hotReloadEngine;
 
-    public HotReloadInterceptorHandler(ApplicationContext applicationContext, HotReloadEngine hotReloadEngine) {
-        super(applicationContext);
-        this.hotReloadEngine = hotReloadEngine;
+    public HotReloadInterceptorHandler(SpringContextHolder springContextHolder, HotReloadConfig hotReloadConfig) {
+        super(springContextHolder, hotReloadConfig);
+        hotReloadEngine = null;
+    }
+
+    @Override
+    public void initHttpRoutes() {
     }
 }

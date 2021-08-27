@@ -14,7 +14,11 @@ import java.util.List;
 @ConfigurationProperties(prefix = HotReloadConfig.CONFIG_ROOT)
 @Data
 public class HotReloadConfig implements Serializable {
-    static final String CONFIG_ROOT = "clever.hot-reload";
+    public static final String CONFIG_ROOT = "clever.hot-reload";
+    /**
+     * 是否启用热重载模式
+     */
+    private boolean devMode = true;
     /**
      * 热重载代码位置
      */
@@ -26,5 +30,5 @@ public class HotReloadConfig implements Serializable {
     /**
      * http路由模块(org.clever.hot.reload.route.HttpRoute实现类class全路径)
      */
-    private List<String> HttpRouteModules;
+    private List<String> httpRouteModules;
 }
