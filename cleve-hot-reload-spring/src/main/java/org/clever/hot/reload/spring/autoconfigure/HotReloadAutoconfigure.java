@@ -1,5 +1,6 @@
 package org.clever.hot.reload.spring.autoconfigure;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.clever.hot.reload.spring.component.SpringContextHolder;
 import org.clever.hot.reload.spring.config.HotReloadConfig;
@@ -37,9 +38,9 @@ public class HotReloadAutoconfigure {
 
     @ConditionalOnProperty(prefix = HotReloadConfig.CONFIG_ROOT, name = "dev-mode", havingValue = "true", matchIfMissing = true)
     @Bean("hotReloadInterceptorHandler")
-    public HotReloadInterceptorHandler hotReloadInterceptorHandler(SpringContextHolder springContextHolder) {
+    public HotReloadInterceptorHandler hotReloadInterceptorHandler(SpringContextHolder springContextHolder, ObjectMapper objectMapper) {
         log.warn("当前已使用代码热重载模式，请勿在生产环境使用这种模式");
-        HotReloadInterceptorHandler interceptorHandler = new HotReloadInterceptorHandler(springContextHolder, hotReloadConfig);
+        HotReloadInterceptorHandler interceptorHandler = new HotReloadInterceptorHandler(springContextHolder, objectMapper, hotReloadConfig);
         interceptorHandler.initHttpRoutes();
         return interceptorHandler;
     }
@@ -47,8 +48,8 @@ public class HotReloadAutoconfigure {
     @ConditionalOnProperty(prefix = HotReloadConfig.CONFIG_ROOT, name = "dev-mode", havingValue = "false")
     @Primary
     @Bean("productionInterceptorHandler")
-    public ProductionInterceptorHandler productionInterceptorHandler(SpringContextHolder springContextHolder) {
-        ProductionInterceptorHandler interceptorHandler = new ProductionInterceptorHandler(springContextHolder, hotReloadConfig);
+    public ProductionInterceptorHandler productionInterceptorHandler(SpringContextHolder springContextHolder, ObjectMapper objectMapper) {
+        ProductionInterceptorHandler interceptorHandler = new ProductionInterceptorHandler(springContextHolder, objectMapper, hotReloadConfig);
         interceptorHandler.initHttpRoutes();
         return interceptorHandler;
     }

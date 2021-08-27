@@ -1,17 +1,23 @@
 package org.clever.hot.reload.spring.intercept;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.clever.hot.reload.HotReloadEngine;
+import org.clever.hot.reload.model.RouteInfo;
 import org.clever.hot.reload.route.HttpRoute;
 import org.clever.hot.reload.route.HttpRouteRegister;
 import org.clever.hot.reload.spring.component.SpringContextHolder;
 import org.clever.hot.reload.spring.config.HotReloadConfig;
 import org.clever.hot.reload.spring.watch.FileSystemWatcher;
 import org.clever.hot.reload.utils.FilePathUtils;
+import org.clever.hot.reload.utils.ReflectionsUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +29,8 @@ import java.util.List;
 public class HotReloadInterceptorHandler extends AbstractInterceptorHandler {
     private final HotReloadEngine hotReloadEngine;
 
-    public HotReloadInterceptorHandler(SpringContextHolder springContextHolder, HotReloadConfig hotReloadConfig) {
-        super(springContextHolder, hotReloadConfig);
+    public HotReloadInterceptorHandler(SpringContextHolder springContextHolder, ObjectMapper objectMapper, HotReloadConfig hotReloadConfig) {
+        super(springContextHolder, objectMapper, hotReloadConfig);
         hotReloadEngine = null;
         watchHttpRouteModules();
     }
@@ -94,5 +100,16 @@ public class HotReloadInterceptorHandler extends AbstractInterceptorHandler {
             }
         }
         this.httpRouteRegister = httpRouteRegister;
+    }
+
+    @Override
+    public Object doHandle(HttpServletRequest request, HttpServletResponse response, RouteInfo routeInfo) throws Exception {
+        Method method = hotReloadEngine.getStaticMethod(routeInfo.getClazz(), routeInfo.getMethod());
+        if (method == null) {
+            throw new IllegalArgumentException(""); // TODO
+        }
+        ReflectionsUtils.makeAccessible(method);
+        Object[] args = new Object[]{}; // TODO
+        return method.invoke(null, args);
     }
 }

@@ -25,10 +25,6 @@ public class HotReloadConfig implements Serializable {
      */
     private List<String> rootPaths = Collections.singletonList("./src/main/groovy");
     /**
-     * 代码文件默认后缀(.groovy | .java)
-     */
-    private String defSuffix = ".groovy";
-    /**
      * http路由模块(org.clever.hot.reload.route.HttpRoute实现类class全路径)
      */
     private List<String> httpRouteModules = new ArrayList<>();

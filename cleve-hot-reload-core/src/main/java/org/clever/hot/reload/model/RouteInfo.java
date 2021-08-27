@@ -44,11 +44,4 @@ public class RouteInfo implements Serializable {
         this.clazz = clazz;
         this.method = method;
     }
-
-    /**
-     * 路由的唯一key
-     */
-    public String getRouteKey() {
-        return String.format("%s_%s", path, routeMethod);
-    }
 }

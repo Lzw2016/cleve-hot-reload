@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.clever.hot.reload.model.RouteInfo;
 import org.clever.hot.reload.model.RouteMethod;
+import org.clever.hot.reload.utils.RouteKeyUtils;
 import org.springframework.util.Assert;
 
 import java.util.Comparator;
@@ -27,7 +28,7 @@ public class HttpRouteRegister {
     public void printAllRouteInfo() {
         StringBuilder sb = new StringBuilder();
         List<RouteInfo> routeInfoList = routeInfoMap.values().stream()
-                .sorted(Comparator.comparing(RouteInfo::getRouteKey))
+                .sorted(Comparator.comparing(o -> RouteKeyUtils.getRouteKey(o.getPath(), o.getRouteMethod())))
                 .collect(Collectors.toList());
         final int routeMethodWidth = 9;
         int pathWidth = 0;
@@ -50,11 +51,11 @@ public class HttpRouteRegister {
 
     public HttpRouteRegister mapping(String path, RouteMethod routeMethod, String clazz, String method) {
         RouteInfo routeInfo = new RouteInfo(path, routeMethod, clazz, method);
-        RouteInfo old = routeInfoMap.get(routeInfo.getRouteKey());
+        RouteInfo old = routeInfoMap.get(RouteKeyUtils.getRouteKey(routeInfo.getPath(), routeInfo.getRouteMethod()));
         if (old != null) {
             log.warn("Route被替换 | {} -> {}", old, routeInfo);
         }
-        routeInfoMap.put(routeInfo.getRouteKey(), routeInfo);
+        routeInfoMap.put(RouteKeyUtils.getRouteKey(routeInfo.getPath(), routeInfo.getRouteMethod()), routeInfo);
         return this;
     }
 
