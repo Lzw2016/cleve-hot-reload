@@ -67,7 +67,7 @@ public class HotReloadInterceptorHandler extends AbstractInterceptorHandler {
                         log.info("HttpRoute变化 | [{}] -> [{}]", event.getEventType(), event.getFileOrDir().getAbsolutePath());
                         this.initHttpRoutes();
                     },
-                    3_000,
+                    1_000,
                     300
             );
             fileSystemWatcherList.add(fileSystemWatcher);

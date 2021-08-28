@@ -58,7 +58,7 @@ spring:
 ###################################################################################
 clever:
   hot-reload:
-    dev-mode: false
+    dev-mode: true
     root-paths: [ './cleve-hot-reload-spring-demo/src/main/groovy' ]
     http-route-modules:
       - 'org.clever.hot.reload.spring.demo.HttpRouteDemo'
