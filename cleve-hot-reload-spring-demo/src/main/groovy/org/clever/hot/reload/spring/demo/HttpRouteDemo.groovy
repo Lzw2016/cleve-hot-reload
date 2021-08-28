@@ -9,6 +9,7 @@ class HttpRouteDemo implements HttpRoute {
     void routing(HttpRouteRegister register) {
         register.startClass("org.clever.hot.reload.spring.demo.controller.Test01", "/api/test")
                 .get("/t01", "t01")
+                .get("/t02", "t02")
                 .endClass()
     }
 }

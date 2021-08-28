@@ -1,15 +1,16 @@
 package org.clever.hot.reload.spring.intercept;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.clever.hot.reload.model.RouteInfo;
 import org.clever.hot.reload.model.RouteMethod;
 import org.clever.hot.reload.route.HttpRouteRegister;
+import org.clever.hot.reload.spring.HotReloadExtendUtils;
 import org.clever.hot.reload.spring.component.JacksonMapper;
 import org.clever.hot.reload.spring.component.SpringContextHolder;
 import org.clever.hot.reload.spring.config.HotReloadConfig;
+import org.clever.hot.reload.utils.ReflectionsUtils;
 import org.clever.hot.reload.utils.RouteKeyUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
@@ -21,9 +22,7 @@ import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.Date;
 
 /**
  * 作者：lizw <br/>
@@ -96,22 +95,6 @@ public abstract class AbstractInterceptorHandler implements HandlerInterceptor {
     }
 
     /**
-     * 异常处理
-     *
-     * @return 返回对象不为空会被序列化成json响应给客户端
-     */
-    public Object resolveException(HttpServletRequest request, HttpServletResponse response, Exception e) {
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setPath(request.getRequestURI());
-        errorResponse.setException(e.getClass().getName());
-        errorResponse.setError(e.getMessage());
-        errorResponse.setMessage("服务器内部错误");
-        errorResponse.setStatus(response.getStatus());
-        errorResponse.setTimestamp(new Date());
-        return errorResponse;
-    }
-
-    /**
      * 处理请求
      */
     public abstract Object doHandle(HttpServletRequest request, HttpServletResponse response, RouteInfo routeInfo) throws Exception;
@@ -139,7 +122,7 @@ public abstract class AbstractInterceptorHandler implements HandlerInterceptor {
                 log.info("Script处理请求异常", e);
                 return false;
             }
-            Object res = resolveException(request, response, e);
+            Object res = HotReloadExtendUtils.EXCEPTION_RESOLVER.resolveException(request, response, handler, e);
             if (res != null) {
                 response.setContentType(CONTENT_TYPE);
                 String json = serializeRes(res);
@@ -149,31 +132,9 @@ public abstract class AbstractInterceptorHandler implements HandlerInterceptor {
         return false;
     }
 
-    @Data
-    public static final class ErrorResponse implements Serializable {
-        /**
-         * 时间戳
-         */
-        private Date timestamp;
-        /**
-         * 异常消息(exception.message)
-         */
-        private String error;
-        /**
-         * 响应状态码(HTTP 状态码)
-         */
-        private int status;
-        /**
-         * 异常类型，异常的具体类型
-         */
-        private String exception;
-        /**
-         * 错误消息，用于前端显示
-         */
-        private String message;
-        /**
-         * 请求路径，当前请求的路径
-         */
-        private String path;
+    public Object invokeMethod(Method method) throws Exception {
+        ReflectionsUtils.makeAccessible(method);
+        Object[] args = HotReloadExtendUtils.CONSTRUCTOR_METHOD_PARAMETER.getMethodParameter(springContextHolder, method);
+        return method.invoke(null, args);
     }
 }

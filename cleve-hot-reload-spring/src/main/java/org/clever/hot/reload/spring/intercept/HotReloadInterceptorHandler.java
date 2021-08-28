@@ -12,7 +12,6 @@ import org.clever.hot.reload.spring.component.SpringContextHolder;
 import org.clever.hot.reload.spring.config.HotReloadConfig;
 import org.clever.hot.reload.spring.watch.FileSystemWatcher;
 import org.clever.hot.reload.utils.FilePathUtils;
-import org.clever.hot.reload.utils.ReflectionsUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +28,7 @@ import java.util.Set;
  */
 @Slf4j
 public class HotReloadInterceptorHandler extends AbstractInterceptorHandler {
-    private final HotReloadEngine hotReloadEngine;
+    protected final HotReloadEngine hotReloadEngine;
 
     public HotReloadInterceptorHandler(SpringContextHolder springContextHolder, ObjectMapper objectMapper, HotReloadConfig hotReloadConfig) {
         super(springContextHolder, objectMapper, hotReloadConfig);
@@ -96,7 +95,7 @@ public class HotReloadInterceptorHandler extends AbstractInterceptorHandler {
                 } else if (clazz == null) {
                     log.error("HttpRoute httpRouteModule={}未定义class", httpRouteModule);
                 } else {
-                    log.error("HttpRoute class={}未实现{}", clazz.getName(), HttpRoute.class.getName());
+                    log.error("HttpRoute class={}未实现接口{}", clazz.getName(), HttpRoute.class.getName());
                 }
             } catch (Exception e) {
                 log.error("HttpRoute class={}加载失败", httpRouteModule, e);
@@ -112,12 +111,6 @@ public class HotReloadInterceptorHandler extends AbstractInterceptorHandler {
         if (method == null) {
             throw new IllegalArgumentException(String.format("class=%s 未定义 static method=%s", routeInfo.getClazz(), routeInfo.getMethod()));
         }
-        ReflectionsUtils.makeAccessible(method);
-        Object[] args = new Object[method.getParameterTypes().length];
-        final Class<?>[] parameterTypes = method.getParameterTypes();
-        for (Class<?> parameterType : parameterTypes) {
-
-        }
-        return method.invoke(null, args);
+        return invokeMethod(method);
     }
 }
