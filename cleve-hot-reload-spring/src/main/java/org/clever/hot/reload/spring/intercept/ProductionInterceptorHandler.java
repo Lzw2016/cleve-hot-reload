@@ -7,6 +7,7 @@ import org.clever.hot.reload.route.HttpRoute;
 import org.clever.hot.reload.route.HttpRouteRegister;
 import org.clever.hot.reload.spring.component.SpringContextHolder;
 import org.clever.hot.reload.spring.config.HotReloadConfig;
+import org.clever.hot.reload.utils.FilePathUtils;
 import org.clever.hot.reload.utils.ReflectionsUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +35,7 @@ public class ProductionInterceptorHandler extends AbstractInterceptorHandler {
         final List<String> httpRouteModules = hotReloadConfig.getHttpRouteModules();
         try {
             for (String httpRouteModule : httpRouteModules) {
-                Class<?> clazz = Class.forName(httpRouteModule);
+                Class<?> clazz = Class.forName(FilePathUtils.getClassName(httpRouteModule));
                 if (HttpRoute.class.isAssignableFrom(clazz)) {
                     HttpRoute httpRoute = (HttpRoute) clazz.newInstance();
                     httpRoute.routing(httpRouteRegister);
@@ -43,7 +44,7 @@ public class ProductionInterceptorHandler extends AbstractInterceptorHandler {
                 }
             }
             for (RouteInfo routeInfo : httpRouteRegister.getAllRouteInfo()) {
-                Class<?> clazz = Class.forName(routeInfo.getClazz());
+                Class<?> clazz = Class.forName(FilePathUtils.getClassName(routeInfo.getClazz()));
                 Method method = ReflectionsUtils.getStaticMethod(clazz, routeInfo.getMethod());
                 ROUTE_METHOD_MAP.put(routeInfo, method);
             }
