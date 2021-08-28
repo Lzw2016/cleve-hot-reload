@@ -111,6 +111,6 @@ public class HotReloadInterceptorHandler extends AbstractInterceptorHandler {
         if (method == null) {
             throw new IllegalArgumentException(String.format("class=%s 未定义 static method=%s", routeInfo.getClazz(), routeInfo.getMethod()));
         }
-        return invokeMethod(method);
+        return invokeMethod(request, response, routeInfo, method);
     }
 }

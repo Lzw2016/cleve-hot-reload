@@ -132,9 +132,9 @@ public abstract class AbstractInterceptorHandler implements HandlerInterceptor {
         return false;
     }
 
-    public Object invokeMethod(Method method) throws Exception {
+    public Object invokeMethod(HttpServletRequest request, HttpServletResponse response, RouteInfo routeInfo, Method method) throws Exception {
         ReflectionsUtils.makeAccessible(method);
-        Object[] args = HotReloadExtendUtils.CONSTRUCTOR_METHOD_PARAMETER.getMethodParameter(springContextHolder, method);
+        Object[] args = HotReloadExtendUtils.CONSTRUCTOR_METHOD_PARAMETER.getMethodParameter(springContextHolder, request, response, routeInfo, method);
         return method.invoke(null, args);
     }
 }
