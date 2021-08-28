@@ -7,6 +7,7 @@ import org.clever.hot.reload.model.RouteMethod;
 import org.clever.hot.reload.utils.RouteKeyUtils;
 import org.springframework.util.Assert;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,6 +48,10 @@ public class HttpRouteRegister {
             String line = "----------------------------------------------------------------------------------------------------------------------------------------------------------";
             log.info("\n{}\n#--All RouteInfo--#\n{}{}", line, sb, line);
         }
+    }
+
+    public Collection<RouteInfo> getAllRouteInfo() {
+        return routeInfoMap.values();
     }
 
     public HttpRouteRegister mapping(String path, RouteMethod routeMethod, String clazz, String method) {

@@ -44,7 +44,7 @@ public class SpringContextHolder implements ApplicationContextAware {
         while (applicationContext == null && require) {
             log.info("等待Spring Context初始化成功...");
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (InterruptedException ignore) {
             }
         }

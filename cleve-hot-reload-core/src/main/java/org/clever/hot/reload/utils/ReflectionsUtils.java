@@ -3,7 +3,14 @@ package org.clever.hot.reload.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 反射工具类(自己实现的)<br/>
@@ -22,13 +29,10 @@ public class ReflectionsUtils {
      * set方法前缀
      */
     private static final String SETTER_PREFIX = "set";
-
     /**
      * get方法前缀
      */
     private static final String GETTER_PREFIX = "get";
-
-    private static final String CGLIB_CLASS_SEPARATOR = "$$";
 
     /**
      * 将checked exception转换为unchecked exception
@@ -294,65 +298,34 @@ public class ReflectionsUtils {
         }
     }
 
-    /**
-     * 通过反射, 获得Class定义中声明的父类的泛型参数的类型<br/>
-     * 如无法找到, 返回Object.class<br/>
-     * 如：public UserDao extends HibernateDao&lt;User&gt;
-     *
-     * @param clazz 目标Class
-     * @param index 泛型类型所处的位置，例如：直接父类的泛型使用0
-     * @return the 返回父类层级中的泛型类型，如无法找到, 返回Object.class
-     */
-    public static Class<?> getClassGenricType(final Class<?> clazz, final int index) {
-        Type genType = clazz.getGenericSuperclass();
-
-        if (!(genType instanceof ParameterizedType)) {
-            log.warn(clazz.getSimpleName() + "类不是ParameterizedType的子类");
-            return Object.class;
-        }
-
-        Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
-
-        if (index >= params.length || index < 0) {
-            log.warn("Index: " + index + ", Size of " + clazz.getSimpleName() + "'s Parameterized Type: " + params.length);
-            return Object.class;
-        }
-
-        if (!(params[index] instanceof Class)) {
-            log.warn(clazz.getSimpleName() + "没有设置超泛型参数的实际类");
-            return Object.class;
-        }
-
-        return (Class<?>) params[index];
+    public static List<Method> getMethods(Class<?> clazz, String methodName) {
+        Method[] methods = clazz.getDeclaredMethods();
+        return Arrays.stream(methods).filter(m -> Objects.equals(methodName, m.getName())).collect(Collectors.toList());
     }
 
-    /**
-     * 通过反射, 获得Class定义中声明的泛型参数的类型, 注意泛型必须定义在父类处<br/>
-     * 如无法找到, 返回Object.class<br/>
-     * 如：public UserDao extends HibernateDao&lt;User&gt;
-     *
-     * @param clazz 目标Class
-     * @return 返回父类中的泛型类型，如无法找到, 返回Object.class
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> Class<T> getClassGenricType(final Class<?> clazz) {
-        return (Class<T>) getClassGenricType(clazz, 0);
+    public static Method getMethod(Class<?> clazz, String methodName) {
+        Method method = null;
+        List<Method> methods = getMethods(clazz, methodName);
+        if (!methods.isEmpty()) {
+            method = methods.get(0);
+        }
+        if (methods.size() > 1) {
+            log.warn("class={} 包含{}个 method={}", clazz.getName(), methods.size(), methodName);
+        }
+        return method;
     }
 
-    /**
-     * 获取实际使用的类，获取被AOP过的真实类
-     *
-     * @param instance 目标对象
-     * @return 返回实际使用的类
-     */
-    public static Class<?> getUserClass(Object instance) {
-        Class<?> clazz = instance.getClass();
-        if (clazz != null && clazz.getName().contains(CGLIB_CLASS_SEPARATOR)) {
-            Class<?> superClass = clazz.getSuperclass();
-            if (superClass != null && !Object.class.equals(superClass)) {
-                return superClass;
-            }
+    public static Method getStaticMethod(Class<?> clazz, String methodName) {
+        List<Method> methods = getMethods(clazz, methodName).stream()
+                .filter(m -> Modifier.isStatic(m.getModifiers()))
+                .collect(Collectors.toList());
+        Method method = null;
+        if (!methods.isEmpty()) {
+            method = methods.get(0);
         }
-        return clazz;
+        if (methods.size() > 1) {
+            log.warn("class={} 包含{}个 method={}", clazz.getName(), methods.size(), methodName);
+        }
+        return method;
     }
 }
