@@ -1,6 +1,7 @@
 package org.clever.hot.reload.spring.component;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -118,5 +119,26 @@ public class SpringContextHolder implements ApplicationContextAware {
      */
     public <T> T getBean(boolean require, Class<T> requiredType) {
         return getApplicationContext(require).getBean(requiredType);
+    }
+
+    /**
+     * 从静态变量applicationContext中取得Bean, 自动转型为所赋值对象的类型.
+     *
+     * @param require      是否等待获取ApplicationContext
+     * @param requiredType Bean类型
+     * @return 返回Bean对象
+     */
+    public <T> ObjectProvider<T> getBeanProvider(boolean require, Class<T> requiredType) {
+        return getApplicationContext(require).getBeanProvider(requiredType);
+    }
+
+    /**
+     * 从静态变量applicationContext中取得Bean, 自动转型为所赋值对象的类型.
+     *
+     * @param requiredType Bean类型
+     * @return 返回Bean对象
+     */
+    public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
+        return getBeanProvider(true, requiredType);
     }
 }
