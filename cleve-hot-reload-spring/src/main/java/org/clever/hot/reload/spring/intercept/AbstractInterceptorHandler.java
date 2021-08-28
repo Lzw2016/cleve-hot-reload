@@ -15,6 +15,7 @@ import org.clever.hot.reload.utils.RouteKeyUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
@@ -101,6 +102,20 @@ public abstract class AbstractInterceptorHandler implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        // 跨域处理
+        if (HotReloadExtendUtils.CORS_PROCESSOR != null) {
+            boolean supportCors = HotReloadExtendUtils.CORS_PROCESSOR.processRequest(request, response);
+            if (supportCors) {
+                boolean preFlightRequest = CorsUtils.isPreFlightRequest(request);
+                if (preFlightRequest) {
+                    // 是预检请求(OPTIONS)
+                    return false;
+                }
+            } else {
+                // 不支持跨域
+                return false;
+            }
+        }
         final String requestPath = request.getRequestURI();
         final String method = StringUtils.upperCase(request.getMethod());
         final RouteInfo routeInfo = httpRouteRegister.getRouteInfo(RouteKeyUtils.getRouteKey(requestPath, RouteMethod.valueOf(method)));

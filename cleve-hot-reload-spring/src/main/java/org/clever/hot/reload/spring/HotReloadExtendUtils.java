@@ -37,4 +37,9 @@ public class HotReloadExtendUtils {
         // }
         return new Object[method.getParameterTypes().length];
     };
+
+    /**
+     * 跨域支持处理
+     */
+    public static CorsProcessor CORS_PROCESSOR = null;
 }
