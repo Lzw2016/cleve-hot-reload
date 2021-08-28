@@ -118,24 +118,27 @@ public abstract class AbstractInterceptorHandler implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // 判断请求是否支持 Script 处理
+        final String requestPath = request.getRequestURI();
+        final String method = StringUtils.upperCase(request.getMethod());
+        final RouteInfo routeInfo = httpRouteRegister.getRouteInfo(RouteKeyUtils.getRouteKey(requestPath, RouteMethod.valueOf(method)));
+        if (routeInfo == null) {
+            return true;
+        }
         if (!supportRequestHandle(request, handler)) {
             return true;
         }
-        final String requestPath = request.getRequestURI();
-        final String method = StringUtils.upperCase(request.getMethod());
         try {
-            final RouteInfo routeInfo = httpRouteRegister.getRouteInfo(RouteKeyUtils.getRouteKey(requestPath, RouteMethod.valueOf(method)));
-            if (routeInfo == null) {
-                return false;
-            }
             Object res = doHandle(request, response, routeInfo);
-            if (res != null) {
+            if (res != null && !response.isCommitted()) {
                 response.setContentType(CONTENT_TYPE);
                 String json = serializeRes(res);
                 response.getWriter().println(json);
             }
         } catch (Exception e) {
+            if (response.isCommitted()) {
+                log.info("Script处理请求异常", e);
+                return false;
+            }
             Object res = resolveException(request, response, e);
             if (res != null) {
                 response.setContentType(CONTENT_TYPE);

@@ -2,7 +2,7 @@ package org.clever.hot.reload.spring.watch;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.apache.commons.io.IOCase;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
@@ -30,56 +30,22 @@ public class FileSystemWatcher {
     private final FileAlterationListener listener;
 
     /**
-     * @param absolutePath    监听文件绝对路径
-     * @param include         包含的文件通配符(白名单)
-     * @param exclude         排除的文件通配符(黑名单)
-     * @param caseSensitivity 文件大小写敏感设置
-     * @param listener        文件变化时的处理函数
-     * @param interval        在两次文件系统检查之间等待的时间（以毫秒为单位）
-     * @param delayMillis     listener处理的防抖动延时时间
+     * @param absolutePath 监听文件绝对路径
+     * @param includes     包含的文件通配符(白名单)
+     * @param listener     文件变化时的处理函数
+     * @param interval     在两次文件系统检查之间等待的时间（以毫秒为单位）
+     * @param delayMillis  listener处理的防抖动延时时间
      */
-    public FileSystemWatcher(String absolutePath, String[] include, String[] exclude, IOCase caseSensitivity, Consumer<MonitorEvent> listener, long interval, long delayMillis) {
+    public FileSystemWatcher(String absolutePath, Set<String> includes, Consumer<MonitorEvent> listener, long interval, long delayMillis) {
         this.observer = new FileAlterationObserver(absolutePath);
         this.monitor = new FileAlterationMonitor(interval);
-        this.listener = new DebouncedFileListener(new BlackWhiteFileFilter(include, exclude, caseSensitivity), listener, delayMillis);
-        init();
-    }
-
-    /**
-     * @param absolutePath 监听文件绝对路径
-     * @param include      包含的文件通配符(白名单)
-     * @param exclude      排除的文件通配符(黑名单)
-     * @param listener     文件变化时的处理函数
-     */
-    public FileSystemWatcher(String absolutePath, String[] include, String[] exclude, Consumer<MonitorEvent> listener) {
-        this(absolutePath, include, exclude, null, listener, 3000, 200);
-        init();
-    }
-
-    /**
-     * @param absolutePath    监听文件绝对路径
-     * @param include         包含的文件通配符(白名单)
-     * @param exclude         排除的文件通配符(黑名单)
-     * @param caseSensitivity 文件大小写敏感设置
-     * @param listener        文件变化时的处理函数
-     * @param interval        在两次文件系统检查之间等待的时间（以毫秒为单位）
-     * @param delayMillis     listener处理的防抖动延时时间
-     */
-    public FileSystemWatcher(String absolutePath, Set<String> include, Set<String> exclude, IOCase caseSensitivity, Consumer<MonitorEvent> listener, long interval, long delayMillis) {
-        this.observer = new FileAlterationObserver(absolutePath);
-        this.monitor = new FileAlterationMonitor(interval);
-        this.listener = new DebouncedFileListener(new BlackWhiteFileFilter(include, exclude, caseSensitivity), listener, delayMillis);
-        init();
-    }
-
-    /**
-     * @param absolutePath 监听文件绝对路径
-     * @param include      包含的文件通配符(白名单)
-     * @param exclude      排除的文件通配符(黑名单)
-     * @param listener     文件变化时的处理函数
-     */
-    public FileSystemWatcher(String absolutePath, Set<String> include, Set<String> exclude, Consumer<MonitorEvent> listener) {
-        this(absolutePath, include, exclude, null, listener, 3000, 200);
+        this.listener = new DebouncedFileListener(pathname -> {
+            if (includes == null || includes.isEmpty()) {
+                return false;
+            }
+            String path = FilenameUtils.normalize(pathname.getAbsolutePath());
+            return includes.contains(path);
+        }, listener, delayMillis);
         init();
     }
 

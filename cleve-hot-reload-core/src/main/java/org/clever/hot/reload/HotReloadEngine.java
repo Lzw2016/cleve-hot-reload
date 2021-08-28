@@ -3,6 +3,7 @@ package org.clever.hot.reload;
 import groovy.util.GroovyScriptEngine;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.clever.hot.reload.utils.FilePathUtils;
 import org.clever.hot.reload.utils.ReflectionsUtils;
 import org.springframework.util.Assert;
@@ -36,7 +37,7 @@ public class HotReloadEngine {
                 File file = new File(url);
                 fullPath = file.getAbsolutePath();
             }
-            log.info("url={} -> {}", url, fullPath);
+            log.info("url={} -> {}", url, FilenameUtils.normalize(fullPath));
         }
         engine = new GroovyScriptEngine(urls);
     }

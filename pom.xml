@@ -55,6 +55,7 @@
     <modules>
         <module>cleve-hot-reload-core</module>
         <module>cleve-hot-reload-spring</module>
+        <module>cleve-hot-reload-spring-demo</module>
     </modules>
 
     <properties>
@@ -82,6 +83,11 @@
             <dependency>
                 <groupId>org.clever</groupId>
                 <artifactId>cleve-hot-reload-spring</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.clever</groupId>
+                <artifactId>cleve-hot-reload-spring-demo</artifactId>
                 <version>${revision}</version>
             </dependency>
             <!--clever依赖-->
