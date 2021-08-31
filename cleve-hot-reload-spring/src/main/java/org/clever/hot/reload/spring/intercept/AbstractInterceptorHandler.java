@@ -118,7 +118,10 @@ public abstract class AbstractInterceptorHandler implements HandlerInterceptor {
         }
         final String requestPath = request.getRequestURI();
         final String method = StringUtils.upperCase(request.getMethod());
-        final RouteInfo routeInfo = httpRouteRegister.getRouteInfo(RouteKeyUtils.getRouteKey(requestPath, RouteMethod.valueOf(method)));
+        RouteInfo routeInfo = httpRouteRegister.getRouteInfo(RouteKeyUtils.getRouteKey(requestPath, RouteMethod.valueOf(method)));
+        if (routeInfo == null) {
+            routeInfo = httpRouteRegister.getRouteInfo(RouteKeyUtils.getRouteKey(requestPath, RouteMethod.ANY));
+        }
         if (routeInfo == null) {
             return true;
         }
