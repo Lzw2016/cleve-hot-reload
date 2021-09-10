@@ -57,6 +57,8 @@ public class HotReloadEngine {
         Class<?> clazz;
         String classPath = FilePathUtils.getClassPath(classFullName);
         clazz = engine.loadScriptByName(classPath);
+        // GroovyClassLoader classLoader = new GroovyClassLoader();
+        // classLoader.parseClass("SourceCode");
         return clazz;
     }
 
