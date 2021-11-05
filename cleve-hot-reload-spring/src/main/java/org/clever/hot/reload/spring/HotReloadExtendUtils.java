@@ -32,10 +32,22 @@ public class HotReloadExtendUtils {
      * 方法反射调用时获取方法参数
      */
     public static ConstructorMethodParameter CONSTRUCTOR_METHOD_PARAMETER = (springContextHolder, request, response, routeInfo, method) -> {
-        // final Class<?>[] parameterTypes = method.getParameterTypes();
-        // for (Class<?> parameterType : parameterTypes) {
-        // }
-        return new Object[method.getParameterTypes().length];
+        final Object[] args = new Object[method.getParameterTypes().length];
+        final Class<?>[] parameterTypes = method.getParameterTypes();
+        for (int idx = 0; idx < parameterTypes.length; idx++) {
+            Class<?> parameterType = parameterTypes[idx];
+            if (parameterType.isInstance(request)) {
+                args[idx] = request;
+            } else if (parameterType.isInstance(response)) {
+                args[idx] = response;
+            } else if (parameterType.isInstance(routeInfo)) {
+                args[idx] = routeInfo;
+            } else {
+                // TODO 需要优化
+                springContextHolder.getBean(parameterType);
+            }
+        }
+        return args;
     };
 
     /**
