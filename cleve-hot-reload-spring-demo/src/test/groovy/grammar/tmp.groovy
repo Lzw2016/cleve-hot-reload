@@ -110,7 +110,8 @@ class tmp {
             return x + y + z
         }
         tmp = value_19(1, 2, 3)
-        log.info("---> {}", tmp)
+
+        log.info("-> end")
     }
 
     @Test
