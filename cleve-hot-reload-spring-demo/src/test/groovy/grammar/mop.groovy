@@ -40,7 +40,8 @@ class mop {
 
     @Test
     void t02() {
-        def eat = Man.class.metaClass.getMetaMethod("eat", null)
+        // def eat = Man.class.metaClass.getMetaMethod("eat", null)
+        def eat = Man.class.metaClass.getStaticMetaMethod("eat", null)
         Man.metaClass.'static'.eat = { ->
             log.info "--> start call eat"
             eat.invoke(null, null)
@@ -48,5 +49,41 @@ class mop {
         }
         Man.eat()
     }
-}
 
+    @Test
+    void t03() {
+        def flag = false
+        Man.metaClass.'static'.eat = { ->
+            if (flag) {
+                return
+            }
+            flag = true
+            log.info "--> start call eat"
+            Man.class.metaClass.invokeMethod(null, "eat", null)
+            log.info "<-- end call eat"
+            flag = false
+        }
+        Man.eat()
+    }
+
+    @Test
+    void t04() {
+        def flag = false
+        Man.metaClass.'static'.eat = { ->
+            if (flag) {
+                return
+            }
+            flag = true
+            log.info "--> start call eat"
+            Man.class.getMethod("eat").invoke(null, null)
+            log.info "<-- end call eat"
+            flag = false
+        }
+        Man.eat()
+    }
+
+    @Test
+    void t05() {
+        Man.class.metaClass.invokeMethod(null, "eat", null)
+    }
+}
