@@ -7,7 +7,14 @@ import javax.servlet.http.HttpServletRequest
 @Slf4j
 class Test01 {
     static Object t01() {
-        return [a: 111, b: "abc", ok: true]
+        def sum = 0L
+        for (def i = 0; i < 10000; i++) {
+
+            for (def j = 0; j < 10000; j++) {
+                sum += i + j;
+            }
+        }
+        return [a: 111, b: "abc", ok: true, sum: sum]
     }
 
     static Object t02(HttpServletRequest request) {
@@ -18,4 +25,5 @@ class Test01 {
                 aaa: 123,
         ]
     }
+
 }
